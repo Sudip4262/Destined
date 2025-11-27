@@ -8,6 +8,7 @@ import Animated, {useAnimatedStyle, useSharedValue, withSpring} from 'react-nati
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useFocusEffect } from '@react-navigation/native'
 import StatusChangeModal from '../Components/StatusChangeModal'
+import ItemDescription from '../Components/ItemDescription'
 
 
 const ITEM_HEIGHT = 75
@@ -50,8 +51,13 @@ const DailyTask = ({route}) => {
     const [StatusChangeM, setStatusChangeM] = useState(false)
     const[TaskList,setTaskList] = useState([])
     const[TasklistLength, setTasklistLength] = useState()
+    const [ItemDescriptionModal, setItemDescriptionModal] = useState(false)
 
     const[SelectedObjectId, setSelectedObjectId] = useState()
+    const[SelectedTaskname, setSelectedTaskname] = useState()
+    const[SelectedTaskdesc, setSelectedTaskdesc] = useState()
+    const[SelectedTaskTime, setSelectedTaskTime] = useState()
+    const[SelectedTaskCompleted, setSelectedTaskCompleted] = useState()
 
     const[TaskBasedStatusModal, setTaskBasedStatusModal] = useState(false)
 
@@ -64,11 +70,18 @@ const DailyTask = ({route}) => {
 
     const ModalTaskStatus = (something) => setTaskBasedStatusModal(something)
     const ObjectId = (something) => setSelectedObjectId(something)
+    const Taskname = (something) => setSelectedTaskname(something)
+    const Taskdesc = (something) => setSelectedTaskdesc(something)
+    const TaskTime = (something) => setSelectedTaskTime(something)
+    const TaskCompleted = (something) => setSelectedTaskCompleted(something)
 
     const openModal =() => setAddItemModal(true)
     const closeModal =() => setAddItemModal(false)
     const openStatusModal =() => setStatusChangeM(true)
     const closeStatusModal =() => setStatusChangeM(false)
+
+    const openItemDescriptionModal =() => setItemDescriptionModal(true)
+    const closeItemDescriptionModal =() => setItemDescriptionModal(false)
     // console.log(StatusChangeM)
     useEffect(() => {
       getData()
@@ -76,7 +89,7 @@ const DailyTask = ({route}) => {
         // setTaskList([])
         // positions.value={}
       }
-    },[AddItemModal, StatusChangeM])
+    },[AddItemModal, StatusChangeM, ItemDescriptionModal])
 
 
     const getData = async() => {
@@ -122,6 +135,11 @@ const DailyTask = ({route}) => {
                   openStatusModal = {openStatusModal}
                   TaskBasedStatusModal = {ModalTaskStatus}
                   ObjectId = {ObjectId}
+                  Taskname = {Taskname}
+                  Taskdesc = {Taskdesc}
+                  TaskTime = {TaskTime}
+                  TaskCompleted = {TaskCompleted}
+                  openItemDescriptionModal = {openItemDescriptionModal}
                 />
             )
           }) : (
@@ -136,6 +154,7 @@ const DailyTask = ({route}) => {
       </TouchableOpacity>
       {AddItemModal && <ItemAddModal closeModal = {closeModal} date={item.item.date}  />}
       {StatusChangeM && <StatusChangeModal closeModal={closeStatusModal} TaskStatus={TaskBasedStatusModal} date={date} ObjectId={SelectedObjectId}/>}
+      {ItemDescriptionModal && <ItemDescription closeModal={closeItemDescriptionModal} ObjectId={SelectedObjectId} Taskname = {SelectedTaskname} Taskdesc={SelectedTaskdesc} TaskTime={SelectedTaskTime} TaskCompleted={SelectedTaskCompleted} date={date} />}
     </GestureHandlerRootView>
   )
 }
@@ -174,7 +193,7 @@ const Styles=StyleSheet.create({
 })
 
 
-const ItemRow = memo(function ItemRow({item, positions, count,TaskList, portNo, date, email, openStatusModal, TaskBasedStatusModal, ObjectId}){
+const ItemRow = memo(function ItemRow({item, positions, count,TaskList, portNo, date, email, openStatusModal, TaskBasedStatusModal, ObjectId, Taskname, Taskdesc, TaskTime, TaskCompleted, openItemDescriptionModal}){
   const isActive = useSharedValue(false);
   const dragY = useSharedValue(0);
   const startY = useSharedValue(0);
@@ -262,7 +281,16 @@ const AnimationStyle = useAnimatedStyle(() => {
         <List color={"#FFF"} size={20}/>
       </View> 
       </GestureDetector>
-      <TouchableOpacity activeOpacity={0.7} style={{flex:4.5, flexDirection:'row', alignItems:'center' ,justifyContent:'space-between'}} onPress={() => {console.log("Card pressed")}}>
+      <TouchableOpacity activeOpacity={0.7} style={{flex:4.5, flexDirection:'row', alignItems:'center' ,justifyContent:'space-between'}} 
+      onPress={() => {
+        openItemDescriptionModal(); 
+        ObjectId(item._id)
+        // console.log(item)
+        Taskname(item.taskname)
+        Taskdesc(item.taskdesc)
+        TaskTime(Time.getHours().toString().padStart(2,'0')+":"+Time.getMinutes().toString().padStart(2,'0'))
+        TaskCompleted(item.completed)
+        }}>
         <Text style={{color:'#fff', fontSize:16}}>{item.taskname}</Text>
         <Text style={{color:'#FFF', fontSize:16}}>{Time.getHours().toString().padStart(2,'0')+":"+Time.getMinutes().toString().padStart(2,'0')}</Text>
       </TouchableOpacity>

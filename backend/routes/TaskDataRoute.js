@@ -128,8 +128,8 @@ router.post("/updateTaskList", async(req, res)=>{
 
 router.post('/ChangeTaskStatus', async(req, res) => {
     const{taskStatus, email, date, Objectid} = req.body
-    console.log(taskStatus, email, date, Objectid)
-    console.log(new mongoose.mongo.ObjectId(Objectid))
+    // console.log(taskStatus, email, date, Objectid)
+    // console.log(new mongoose.mongo.ObjectId(Objectid))
 
     try{
         await UserTask.updateOne(
@@ -142,7 +142,22 @@ router.post('/ChangeTaskStatus', async(req, res) => {
                 ]
             }
         )
-        res.status(200).json({message:"Updated status"})
+        return res.status(200).json({message:"Updated status"})
+    } catch{
+        res.status(400).json({message:"err"})
+    }
+})
+
+router.post('/delete', async(req, res) => {
+    // console.log("Delete things")
+    const{date, ObjectId} = req.body
+    // console.log(date, ObjectId)
+    try{
+        await UserTask.updateOne(
+            {"dates.taskdate":date},
+            {$pull:{"dates.$.tasks":{_id:new mongoose.mongo.ObjectId(ObjectId)}}}
+        )
+        return res.status(200).json({message:"Deleted Task"})
     } catch{
         res.status(400).json({message:"err"})
     }
